@@ -1,0 +1,9 @@
+[package]
+name = "mult_persistence"
+version = "0.1.0"
+authors = ["Jesko Dujmovic <jeskod+git@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+num-traits = "0.2.6"
+num-bigint = "0.1"
