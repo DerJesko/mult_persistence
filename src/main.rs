@@ -1,16 +1,18 @@
 extern crate num_bigint;
 extern crate num_traits;
 
-use num_bigint::{BigUint, ToBigUint};
+use num_bigint::ToBigUint;
 use num_traits::checked_pow;
 use std::collections::HashMap;
+
+const BASE: u32 = 10;
 
 fn main() {
     let mut m = HashMap::new();
     let mut current = checked_pow(10.to_biguint().unwrap(), 5).unwrap();
     let mut max = 0;
     loop {
-        let res = calc_persistence(current.clone(), &mut m);
+        let res = calc_persistence(current.to_radix_be(BASE), &mut m);
         if res > max {
             max = res;
             println!("persistence: {}, number: {}", max, current);
@@ -19,24 +21,25 @@ fn main() {
     }
 }
 
-fn calc_persistence(n: BigUint, set: &mut HashMap<BigUint, usize>) -> usize {
-    if n < 10.to_biguint().unwrap() {
+fn calc_persistence(n: Vec<u8>, set: &mut HashMap<Vec<u8>, usize>) -> usize {
+    if n.len() < 2 {
         return 0;
     }
-    let a = match set.get(&n) {
+    let mut m = n;
+    m.sort();
+    let a = match set.get(&m) {
         Some(i) => *i,
-        None => calc_persistence(persistence_step(&n), set) + 1,
+        None => calc_persistence(persistence_step(&m), set) + 1,
     };
     // println!("{}: {}", n, a);
-    set.insert(n, a);
+    set.insert(m, a);
     a
 }
 
-fn persistence_step(n: &BigUint) -> BigUint {
-    let digits = n.to_radix_be(10);
+fn persistence_step(n: &Vec<u8>) -> Vec<u8> {
     let mut x = 1.to_biguint().unwrap();
-    for i in digits {
-        x *= i;
+    for i in n {
+        x = x * i;
     }
-    x
+    x.to_radix_be(BASE)
 }
